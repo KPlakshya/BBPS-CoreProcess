@@ -3,11 +3,11 @@ package com.bbps.core.factory.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bbps.schema.BillFetchResponseType;
+import org.bbps.schema.BillFetchResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.bbps.billfetch.data.BillFetchResponse;
+import com.bbps.billfetch.data.BillFetchResponseVO;
 import com.bbps.billfetch.data.Input;
 import com.bbps.billfetch.data.InputParams;
 import com.bbps.billfetch.data.Tag;
@@ -32,19 +32,19 @@ public class BillFetchRespServiceImpl implements CoreProcess {
 
 		try {
 			String respXMLString = String.valueOf(coreReqResp.getBbpsReqinfo().getMessageBody().getBody());
-			BillFetchResponseType billFetchResponseType = MarshUnMarshUtil.unmarshal(respXMLString,
-					BillFetchResponseType.class);
+			BillFetchResponse billFetchResponseType = MarshUnMarshUtil.unmarshal(respXMLString,
+					BillFetchResponse.class);
 			processBillFetch(billFetchResponseType);
 		} catch (Exception e) {
 			log.info("Unable to process [{}]", e.getMessage());
 		}
 	}
 
-	public void processBillFetch(BillFetchResponseType resp) {
+	public void processBillFetch(BillFetchResponse resp) {
 		
 		try {
 			String status = null;
-			BillFetchResponse billFetchResponse = new BillFetchResponse();
+			BillFetchResponseVO billFetchResponse = new BillFetchResponseVO();
 			billFetchResponse.setRefId(resp.getHead().getRefId());
 			String respCde = resp.getReason().getResponseCode();
 			if (ResponseConstants.SUCCESS_CODE.equalsIgnoreCase(respCde)) {
@@ -65,10 +65,10 @@ public class BillFetchRespServiceImpl implements CoreProcess {
 				if (resp.getBillDetails().getCustomerParams() != null) {
 					InputParams inputparams = new InputParams();
 					List<Input> inputs = new ArrayList<Input>();
-					for (int i = 0; i < resp.getBillDetails().getCustomerParams().getTag().size(); i++) {
+					for (int i = 0; i < resp.getBillDetails().getCustomerParams().getTags().size(); i++) {
 						Input input = new Input();
-						input.setParamName(resp.getBillDetails().getCustomerParams().getTag().get(i).getName());
-						input.setParamValue(resp.getBillDetails().getCustomerParams().getTag().get(i).getValue());
+						input.setParamName(resp.getBillDetails().getCustomerParams().getTags().get(i).getName());
+						input.setParamValue(resp.getBillDetails().getCustomerParams().getTags().get(i).getValue());
 						inputs.add(input);
 					}
 					billFetchResponse.setInputParams(inputparams);
@@ -77,10 +77,10 @@ public class BillFetchRespServiceImpl implements CoreProcess {
 				if (resp.getBillerResponse() != null) {
 
 					List<Tag> tags = new ArrayList<Tag>();
-					for (int i = 0; i < resp.getBillerResponse().getTag().size(); i++) {
+					for (int i = 0; i < resp.getBillerResponse().getTags().size(); i++) {
 						Tag tag = new Tag();
-						tag.setName(resp.getBillerResponse().getTag().get(i).getName());
-						tag.setValue(resp.getBillerResponse().getTag().get(i).getValue());
+						tag.setName(resp.getBillerResponse().getTags().get(i).getName());
+						tag.setValue(resp.getBillerResponse().getTags().get(i).getValue());
 						tags.add(tag);
 					}
 					billFetchResponse.setBillerResponseTag(tags);
@@ -89,10 +89,10 @@ public class BillFetchRespServiceImpl implements CoreProcess {
 				if (resp.getAdditionalInfo() != null) {
 
 					List<Tag> tags = new ArrayList<Tag>();
-					for (int i = 0; i < resp.getAdditionalInfo().getTag().size(); i++) {
+					for (int i = 0; i < resp.getAdditionalInfo().getTags().size(); i++) {
 						Tag tag = new Tag();
-						tag.setName(resp.getBillerResponse().getTag().get(i).getName());
-						tag.setValue(resp.getBillerResponse().getTag().get(i).getValue());
+						tag.setName(resp.getBillerResponse().getTags().get(i).getName());
+						tag.setValue(resp.getBillerResponse().getTags().get(i).getValue());
 						tags.add(tag);
 					}
 					billFetchResponse.setAdditionaInfo(tags);

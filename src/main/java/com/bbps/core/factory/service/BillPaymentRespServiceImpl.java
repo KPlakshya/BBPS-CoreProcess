@@ -3,14 +3,14 @@ package com.bbps.core.factory.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bbps.schema.BillPaymentResponseType;
+import org.bbps.schema.BillPaymentResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.bbps.billfetch.data.Input;
 import com.bbps.billpayment.data.AdditionalInfo;
 import com.bbps.billpayment.data.BillDetails;
-import com.bbps.billpayment.data.BillPaymentResponse;
+import com.bbps.billpayment.data.BillPaymentResponseVO;
 import com.bbps.billpayment.data.BillerResponse;
 import com.bbps.billpayment.data.InputParams;
 import com.bbps.billpayment.data.Tag;
@@ -37,23 +37,23 @@ public class BillPaymentRespServiceImpl implements CoreProcess {
 	public void process(Message coreReqResp) {
 		try {
 			String respXMLString = String.valueOf(coreReqResp.getBbpsReqinfo().getMessageBody().getBody());
-			BillPaymentResponseType BillPaymentResponseType = MarshUnMarshUtil.unmarshal(respXMLString,
-					BillPaymentResponseType.class);
+			BillPaymentResponse BillPaymentResponseType = MarshUnMarshUtil.unmarshal(respXMLString,
+					BillPaymentResponse.class);
 			processBillPayment(BillPaymentResponseType);
 		} catch (Exception e) {
 			log.info("Unable to process [{}]", e.getMessage());
 		}
 	}
 
-	private void processBillPayment(BillPaymentResponseType resp) {
+	private void processBillPayment(BillPaymentResponse resp) {
 		try {
 			String status = null;
-			BillPaymentResponse payresp = new BillPaymentResponse();
+			BillPaymentResponseVO payresp = new BillPaymentResponseVO();
 			payresp.setRefId(resp.getHead().getRefId());
 			String respCde = resp.getReason().getResponseCode();
 			if (ResponseConstants.SUCCESS_CODE.equalsIgnoreCase(respCde)) {
 				status = ResponseConstants.SUCCESS_MSG;
-				payresp.setSiTxn(resp.getHead().getSiTxn().value());
+				payresp.setSiTxn(String.valueOf(resp.getHead().getSiTxn()));
 				payresp.setOrigRefId(resp.getHead().getOrigRefId());
 				payresp.setResponseCode(respCde);
 				payresp.setResponseMessage(resp.getReason().getResponseCode());
@@ -64,14 +64,14 @@ public class BillPaymentRespServiceImpl implements CoreProcess {
 				payresp.setTxnMsgId(resp.getTxn().getMsgId());
 				payresp.setTxnTs(resp.getTxn().getTs());
 				BillDetails detials = new BillDetails();
-				detials.setBillerId(resp.getBillDetails().getBiller().getId());
+//				detials.setBillerId(resp.getBillDetails().getBiller().getId());
 				if (resp.getBillDetails().getCustomerParams() != null) {
 					InputParams inputparams = new InputParams();
 					List<Input> inputs = new ArrayList<Input>();
-					for (int i = 0; i < resp.getBillDetails().getCustomerParams().getTag().size(); i++) {
+					for (int i = 0; i < resp.getBillDetails().getCustomerParams().getTags().size(); i++) {
 						Input input = new Input();
-						input.setParamName(resp.getBillDetails().getCustomerParams().getTag().get(i).getName());
-						input.setParamValue(resp.getBillDetails().getCustomerParams().getTag().get(i).getValue());
+						input.setParamName(resp.getBillDetails().getCustomerParams().getTags().get(i).getName());
+						input.setParamValue(resp.getBillDetails().getCustomerParams().getTags().get(i).getValue());
 						inputs.add(input);
 					}
 					detials.setInputParams(inputparams);
@@ -85,12 +85,12 @@ public class BillPaymentRespServiceImpl implements CoreProcess {
 					billresp.setBillDate(resp.getBillerResponse().getBillDate());
 					billresp.setBillNumber(resp.getBillerResponse().getBillNumber());
 					billresp.setBillPeriod(resp.getBillerResponse().getBillPeriod());
-					if (resp.getBillerResponse().getTag() != null) {
+					if (resp.getBillerResponse().getTags() != null) {
 						List<Tag> inputs = new ArrayList<Tag>();
-						for (int i = 0; i < resp.getBillerResponse().getTag().size(); i++) {
+						for (int i = 0; i < resp.getBillerResponse().getTags().size(); i++) {
 							Tag input = new Tag();
-							input.setName(resp.getBillerResponse().getTag().get(i).getName());
-							input.setValue(resp.getBillerResponse().getTag().get(i).getValue());
+							input.setName(resp.getBillerResponse().getTags().get(i).getName());
+							input.setValue(resp.getBillerResponse().getTags().get(i).getValue());
 							inputs.add(input);
 						}
 						billresp.setTags(inputs);
@@ -100,12 +100,12 @@ public class BillPaymentRespServiceImpl implements CoreProcess {
 				if (resp.getAdditionalInfo() != null) {
 
 					List<AdditionalInfo> tags = new ArrayList<AdditionalInfo>();
-					for (int i = 0; i < resp.getAdditionalInfo().getTag().size(); i++) {
-						AdditionalInfo tag = new AdditionalInfo();
-						tag.setName(resp.getBillerResponse().getTag().get(i).getName());
-						tag.setValue(resp.getBillerResponse().getTag().get(i).getValue());
-						tags.add(tag);
-					}
+//					for (int i = 0; i < resp.getAdditionalInfo().getTags().size(); i++) {
+//						AdditionalInfo tag = new AdditionalInfo();
+//						tag.setName(resp.getBillerResponse().getTags().get(i).getName());
+//						tag.setValue(resp.getBillerResponse().getTags().get(i).getValue());
+//						tags.add(tag);
+//					}
 					payresp.setAdditionaInfo(tags);
 				}
 
@@ -125,6 +125,7 @@ public class BillPaymentRespServiceImpl implements CoreProcess {
 			custReqRespService.fetchAndUpdate(resp.getHead().getRefId(), new ObjectMapper().writeValueAsString(payresp),
 					status);
 		} catch (Exception e) {
+			e.printStackTrace();
 			log.error("error while saving bill payment response refId[{}] [{}]", resp.getHead().getRefId(),
 					e.getMessage());
 		}

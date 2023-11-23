@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bbps.schema.Biller;
-import org.bbps.schema.BillerFetchResponseType;
+import org.bbps.schema.BillerFetchResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.bbps.billerfetch.data.AmountOption;
 import com.bbps.billerfetch.data.BillerCustomerParam;
-import com.bbps.billerfetch.data.BillerFetchResponse;
+import com.bbps.billerfetch.data.BillerFetchResponseVO;
 import com.bbps.billerfetch.data.InterchangeFee;
 import com.bbps.billerfetch.data.InterchangeFeeConf;
 import com.bbps.billerfetch.data.InterchangeFeeDetail;
@@ -37,8 +37,8 @@ public class BillerFetchRespServiceImpl implements CoreProcess {
 
 		try {
 			String respXMLString = String.valueOf(coreReqResp.getBbpsReqinfo().getMessageBody().getBody());
-			BillerFetchResponseType billFetchResponseType = MarshUnMarshUtil.unmarshal(respXMLString,
-					BillerFetchResponseType.class);
+			BillerFetchResponse billFetchResponseType = MarshUnMarshUtil.unmarshal(respXMLString,
+					BillerFetchResponse.class);
 			processBillerFetch(billFetchResponseType);
 		} catch (Exception e) {
 			log.info("Unable to process [{}]", e.getMessage());
@@ -46,13 +46,13 @@ public class BillerFetchRespServiceImpl implements CoreProcess {
 
 	}
 
-	private void processBillerFetch(BillerFetchResponseType resp) {
+	private void processBillerFetch(BillerFetchResponse resp) {
 		try {
 			String status = null;
-			BillerFetchResponse billerFetchResponse = new BillerFetchResponse();
+			BillerFetchResponseVO billerFetchResponse = new BillerFetchResponseVO();
 			billerFetchResponse.setRefId(resp.getHead().getRefId());
-			if (resp.getBiller() != null) {
-				Biller biller = resp.getBiller().get(0);
+			if (resp.getBillers() != null) {
+				Biller biller = resp.getBillers().get(0);
 				status = ResponseConstants.SUCCESS_MSG;
 				billerFetchResponse.setResponseCode(ResponseConstants.SUCCESS_CODE);
 				billerFetchResponse.setResponseMessage(ResponseConstants.SUCCESS_MSG);
@@ -104,11 +104,11 @@ public class BillerFetchRespServiceImpl implements CoreProcess {
 						BillerCustomerParam billerCustomerParam = new BillerCustomerParam();
 						billerCustomerParam.setParamName(biller.getBillerCustomerParams().get(i).getParamName());
 						billerCustomerParam.setDataType(biller.getBillerCustomerParams().get(i).getDataType().value());
-						billerCustomerParam.setMaxLength(biller.getBillerCustomerParams().get(i).getMaxLength());
-						billerCustomerParam.setMinLength(biller.getBillerCustomerParams().get(i).getMinLength());
+					//	billerCustomerParam.setMaxLength(biller.getBillerCustomerParams().get(i).getMaxLength());
+					//	billerCustomerParam.setMinLength(biller.getBillerCustomerParams().get(i).getMinLength());
 						billerCustomerParam.setOptional(biller.getBillerCustomerParams().get(i).isOptional());
 						billerCustomerParam.setRegex(biller.getBillerCustomerParams().get(i).getRegex());
-						billerCustomerParam.setVisibility(biller.getBillerCustomerParams().get(i).isVisibility());
+					//	billerCustomerParam.setVisibility(biller.getBillerCustomerParams().get(i).isVisibility());
 						billerCustomerParams.add(billerCustomerParam);
 					}
 					billerFetchResponse.setBillerCustomerParams(billerCustomerParams);
@@ -139,9 +139,9 @@ public class BillerFetchRespServiceImpl implements CoreProcess {
 						AmountOption amountOption = new AmountOption();
 						List<String> amountBreakupSet = new ArrayList<String>();
 						for (int j = 0; j < biller.getBillerResponseParams().getAmountOptions().get(i)
-								.getAmountBreakupSet().size(); j++) {
+								.getAmountBreakupSets().size(); j++) {
 							amountBreakupSet.add(biller.getBillerResponseParams().getAmountOptions().get(i)
-									.getAmountBreakupSet().get(j));
+									.getAmountBreakupSets().get(j));
 						}
 						amountOption.setAmountBreakupSet(amountBreakupSet);
 						amountoptions.add(amountOption);
@@ -153,79 +153,79 @@ public class BillerFetchRespServiceImpl implements CoreProcess {
 
 				}
 
-				if (biller.getBillerAdditionalInfo() != null) {
+				if (biller.getBillerAdditionalInfos() != null) {
 					List<BillerCustomerParam> billerCustomerParams = new ArrayList<BillerCustomerParam>();
-					for (int i = 0; i < biller.getBillerAdditionalInfo().size(); i++) {
+					for (int i = 0; i < biller.getBillerAdditionalInfos().size(); i++) {
 						BillerCustomerParam billerCustomerParam = new BillerCustomerParam();
-						billerCustomerParam.setParamName(biller.getBillerAdditionalInfo().get(i).getParamName());
-						billerCustomerParam.setDataType(biller.getBillerAdditionalInfo().get(i).getDataType().value());
-						billerCustomerParam.setMaxLength(biller.getBillerAdditionalInfo().get(i).getMaxLength());
-						billerCustomerParam.setMinLength(biller.getBillerAdditionalInfo().get(i).getMinLength());
-						billerCustomerParam.setOptional(biller.getBillerAdditionalInfo().get(i).isOptional());
-						billerCustomerParam.setRegex(biller.getBillerAdditionalInfo().get(i).getRegex());
-						billerCustomerParam
-								.setVisibility(biller.getBillerAdditionalInfoPayment().get(i).isVisibility());
+						billerCustomerParam.setParamName(biller.getBillerAdditionalInfos().get(i).getParamName());
+						billerCustomerParam.setDataType(biller.getBillerAdditionalInfos().get(i).getDataType().value());
+					//	billerCustomerParam.setMaxLength(biller.getBillerAdditionalInfos().get(i).getMaxLength());
+					//	billerCustomerParam.setMinLength(biller.getBillerAdditionalInfos().get(i).getMinLength());
+						billerCustomerParam.setOptional(biller.getBillerAdditionalInfos().get(i).isOptional());
+						billerCustomerParam.setRegex(biller.getBillerAdditionalInfos().get(i).getRegex());
+//						billerCustomerParam
+//								.setVisibility(biller.getBillerAdditionalInfos().get(i).isVisibility());
 						billerCustomerParams.add(billerCustomerParam);
 					}
 					billerFetchResponse.setBillerAdditionalInfo(billerCustomerParams);
 				}
 
-				if (biller.getBillerAdditionalInfoPayment() != null) {
+				if (biller.getBillerAdditionalInfoPayments() != null) {
 					List<BillerCustomerParam> billerCustomerParams = new ArrayList<BillerCustomerParam>();
-					for (int i = 0; i < biller.getBillerAdditionalInfoPayment().size(); i++) {
+					for (int i = 0; i < biller.getBillerAdditionalInfoPayments().size(); i++) {
 						BillerCustomerParam billerCustomerParam = new BillerCustomerParam();
-						billerCustomerParam.setParamName(biller.getBillerAdditionalInfoPayment().get(i).getParamName());
+						billerCustomerParam.setParamName(biller.getBillerAdditionalInfoPayments().get(i).getParamName());
 						billerCustomerParam
-								.setDataType(biller.getBillerAdditionalInfoPayment().get(i).getDataType().value());
-						billerCustomerParam.setMaxLength(biller.getBillerAdditionalInfoPayment().get(i).getMaxLength());
-						billerCustomerParam.setMinLength(biller.getBillerAdditionalInfoPayment().get(i).getMinLength());
-						billerCustomerParam.setOptional(biller.getBillerAdditionalInfoPayment().get(i).isOptional());
-						billerCustomerParam.setRegex(biller.getBillerAdditionalInfoPayment().get(i).getRegex());
-						billerCustomerParam
-								.setVisibility(biller.getBillerAdditionalInfoPayment().get(i).isVisibility());
+								.setDataType(biller.getBillerAdditionalInfoPayments().get(i).getDataType().value());
+						//billerCustomerParam.setMaxLength(biller.getBillerAdditionalInfoPayments().get(i).getMaxLength());
+						//billerCustomerParam.setMinLength(biller.getBillerAdditionalInfoPayments().get(i).getMinLength());
+						billerCustomerParam.setOptional(biller.getBillerAdditionalInfoPayments().get(i).isOptional());
+						billerCustomerParam.setRegex(biller.getBillerAdditionalInfoPayments().get(i).getRegex());
+//						billerCustomerParam
+//								.setVisibility(biller.getBillerAdditionalInfoPayments().get(i).isVisibility());
 						billerCustomerParams.add(billerCustomerParam);
 					}
 					billerFetchResponse.setBillerAdditionalInfoPayment(billerCustomerParams);
 				}
 
-				if (biller.getInterchangeFeeConf() != null) {
+				if (biller.getInterchangeFeeConves() != null) {
 					List<InterchangeFeeConf> interchangeFeeConfs = new ArrayList<InterchangeFeeConf>();
-					for (int i = 0; i < biller.getInterchangeFeeConf().size(); i++) {
+					for (int i = 0; i < biller.getInterchangeFeeConves().size(); i++) {
 						InterchangeFeeConf interchangeFeeConf = new InterchangeFeeConf();
-						interchangeFeeConf.setDefaultFee(biller.getInterchangeFeeConf().get(i).isDefaultFee());
-						interchangeFeeConf.setEffctvFrom(biller.getInterchangeFeeConf().get(i).getEffctvFrom());
-						interchangeFeeConf.setFees(biller.getInterchangeFeeConf().get(i).getFees());
-						interchangeFeeConf.setMti(biller.getInterchangeFeeConf().get(i).getMti());
-						interchangeFeeConf.setPaymentChannel(biller.getInterchangeFeeConf().get(i).getPaymentChannel());
-						interchangeFeeConf.setPaymentMode(biller.getInterchangeFeeConf().get(i).getPaymentMode());
-						interchangeFeeConf.setResponseCode(biller.getInterchangeFeeConf().get(i).getResponseCode());
-						interchangeFeeConf.setEffctvTo(biller.getInterchangeFeeConf().get(i).getEffctvTo());
+						interchangeFeeConf.setDefaultFee(biller.getInterchangeFeeConves().get(i).isDefaultFee());
+						interchangeFeeConf.setEffctvFrom(biller.getInterchangeFeeConves().get(i).getEffctvFrom());
+						interchangeFeeConf.setFees(biller.getInterchangeFeeConves().get(i).getFees());
+						interchangeFeeConf.setMti(biller.getInterchangeFeeConves().get(i).getMti());
+						interchangeFeeConf.setPaymentChannel(biller.getInterchangeFeeConves().get(i).getPaymentChannel());
+						interchangeFeeConf.setPaymentMode(biller.getInterchangeFeeConves().get(i).getPaymentMode());
+						interchangeFeeConf.setResponseCode(biller.getInterchangeFeeConves().get(i).getResponseCode());
+						interchangeFeeConf.setEffctvTo(biller.getInterchangeFeeConves().get(i).getEffctvTo());
 						interchangeFeeConfs.add(interchangeFeeConf);
 					}
 					billerFetchResponse.setInterchangeFeeConf(interchangeFeeConfs);
 				}
 
-				if (biller.getInterchangeFee() != null) {
+				if (biller.getInterchangeFees() != null) {
 					List<InterchangeFee> interchangeFees = new ArrayList<InterchangeFee>();
-					for (int i = 0; i < biller.getInterchangeFee().size(); i++) {
+					for (int i = 0; i < biller.getInterchangeFees().size(); i++) {
 						InterchangeFee interchangeFee = new InterchangeFee();
-						interchangeFee.setFeeCode(biller.getInterchangeFee().get(i).getFeeCode());
-						interchangeFee.setFeeDesc(biller.getInterchangeFee().get(i).getFeeDesc());
-						interchangeFee.setFeeDirection(biller.getInterchangeFee().get(i).getFeeDirection().value());
+						interchangeFee.setFeeCode(biller.getInterchangeFees().get(i).getFeeCode());
+						interchangeFee.setFeeDesc(biller.getInterchangeFees().get(i).getFeeDesc());
+						interchangeFee.setFeeDirection(biller.getInterchangeFees().get(i).getFeeDirection().value());
 						List<InterchangeFeeDetail> interchangeFeeDetais = new ArrayList<InterchangeFeeDetail>();
-						for (int j = 0; j < biller.getInterchangeFee().get(i).getInterchangeFeeDetails().size(); j++) {
+						for (int j = 0; j < biller.getInterchangeFees().get(i).getInterchangeFeeDetails().size(); j++) {
 							InterchangeFeeDetail interchangeFeeDetail = new InterchangeFeeDetail();
-							interchangeFeeDetail.setEffctvFrom(biller.getInterchangeFee().get(i)
+							interchangeFeeDetail.setEffctvFrom(biller.getInterchangeFees().get(i)
 									.getInterchangeFeeDetails().get(j).getEffctvFrom());
 							interchangeFeeDetail.setEffctvTo(
-									biller.getInterchangeFee().get(i).getInterchangeFeeDetails().get(j).getEffctvTo());
+									biller.getInterchangeFees().get(i).getInterchangeFeeDetails().get(j).getEffctvTo());
 							interchangeFeeDetail.setFlatFee(
-									biller.getInterchangeFee().get(i).getInterchangeFeeDetails().get(j).getFlatFee());
-							interchangeFeeDetail.setPercentFee(biller.getInterchangeFee().get(i)
+									biller.getInterchangeFees().get(i).getInterchangeFeeDetails().get(j).getFlatFee());
+							interchangeFeeDetail.setPercentFee(biller.getInterchangeFees().get(i)
 									.getInterchangeFeeDetails().get(j).getPercentFee());
-							interchangeFeeDetail.setTranAmtRangeMax(biller.getInterchangeFee().get(i)
+							interchangeFeeDetail.setTranAmtRangeMax(biller.getInterchangeFees().get(i)
 									.getInterchangeFeeDetails().get(j).getTranAmtRangeMax());
-							interchangeFeeDetail.setTranAmtRangeMin(biller.getInterchangeFee().get(i)
+							interchangeFeeDetail.setTranAmtRangeMin(biller.getInterchangeFees().get(i)
 									.getInterchangeFeeDetails().get(j).getTranAmtRangeMin());
 							interchangeFeeDetais.add(interchangeFeeDetail);
 						}
@@ -240,17 +240,17 @@ public class BillerFetchRespServiceImpl implements CoreProcess {
 				billerFetchResponse.setBillerTimeOut(biller.getBillerTimeOut());
 				billerFetchResponse.setPlanMdmRequirement(biller.getPlanMdmRequirement().value());
 
-				if (biller.getPlanAdditionalInfo() != null) {
+				if (biller.getPlanAdditionalInfos() != null) {
 					List<BillerCustomerParam> billerCustomerParams = new ArrayList<BillerCustomerParam>();
-					for (int i = 0; i < biller.getPlanAdditionalInfo().size(); i++) {
+					for (int i = 0; i < biller.getPlanAdditionalInfos().size(); i++) {
 						BillerCustomerParam billerCustomerParam = new BillerCustomerParam();
-						billerCustomerParam.setParamName(biller.getPlanAdditionalInfo().get(i).getParamName());
-						billerCustomerParam.setDataType(biller.getPlanAdditionalInfo().get(i).getDataType().value());
-						billerCustomerParam.setMaxLength(biller.getPlanAdditionalInfo().get(i).getMaxLength());
-						billerCustomerParam.setMinLength(biller.getPlanAdditionalInfo().get(i).getMinLength());
-						billerCustomerParam.setOptional(biller.getPlanAdditionalInfo().get(i).isOptional());
-						billerCustomerParam.setRegex(biller.getPlanAdditionalInfo().get(i).getRegex());
-						billerCustomerParam.setVisibility(biller.getPlanAdditionalInfo().get(i).isVisibility());
+						billerCustomerParam.setParamName(biller.getPlanAdditionalInfos().get(i).getParamName());
+						billerCustomerParam.setDataType(biller.getPlanAdditionalInfos().get(i).getDataType().value());
+						//billerCustomerParam.setMaxLength(biller.getPlanAdditionalInfos().get(i).getMaxLength());
+						//billerCustomerParam.setMinLength(biller.getPlanAdditionalInfos().get(i).getMinLength());
+						billerCustomerParam.setOptional(biller.getPlanAdditionalInfos().get(i).isOptional());
+						billerCustomerParam.setRegex(biller.getPlanAdditionalInfos().get(i).getRegex());
+					//	billerCustomerParam.setVisibility(biller.getPlanAdditionalInfos().get(i).isVisibility());
 						billerCustomerParams.add(billerCustomerParam);
 					}
 					billerFetchResponse.setPlanAdditionalInfo(billerCustomerParams);
@@ -266,6 +266,7 @@ public class BillerFetchRespServiceImpl implements CoreProcess {
 					new ObjectMapper().writeValueAsString(billerFetchResponse), status);
 
 		} catch (Exception e) {
+			e.printStackTrace();
 			log.error("error while saving bill fetch response refId[{}] [{}]", resp.getHead().getRefId(),
 					e.getMessage());
 		}

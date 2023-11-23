@@ -1,10 +1,10 @@
 package com.bbps.core.factory.service;
 
-import org.bbps.schema.BillValidationResponseType;
+import org.bbps.schema.BillValidationResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.bbps.billvalidation.data.BillValidationResponse;
+import com.bbps.billvalidation.data.BillValidationResponseVO;
 import com.bbps.core.constants.ResponseConstants;
 import com.bbps.core.entity.service.CustomerReqRespService;
 import com.bbps.core.factory.CoreProcess;
@@ -25,18 +25,18 @@ public class BillValidationRespServiceImpl implements CoreProcess {
 	public void process(Message coreReqResp) {
 		try {
 			String respXMLString = String.valueOf(coreReqResp.getBbpsReqinfo().getMessageBody().getBody());
-			BillValidationResponseType billValidationResponseType = MarshUnMarshUtil.unmarshal(respXMLString,
-					BillValidationResponseType.class);
+			BillValidationResponse billValidationResponseType = MarshUnMarshUtil.unmarshal(respXMLString,
+					BillValidationResponse.class);
 			processBillValidation(billValidationResponseType);
 		} catch (Exception e) {
 			log.info("Unable to process [{}]", e.getMessage());
 		}
 	}
 
-	private void processBillValidation(BillValidationResponseType resp) {
+	private void processBillValidation(BillValidationResponse resp) {
 		try {
 			String status = null;
-			BillValidationResponse validationResp = new BillValidationResponse();
+			BillValidationResponseVO validationResp = new BillValidationResponseVO();
 			validationResp.setRefId(resp.getHead().getRefId());
 			String respCde = resp.getReason().getResponseCode();
 			if (ResponseConstants.SUCCESS_CODE.equalsIgnoreCase(respCde)) {

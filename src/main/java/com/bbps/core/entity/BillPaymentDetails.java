@@ -12,7 +12,7 @@ import javax.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "Bill_Payement_Details")
+@Table(name = "bill_payment_details",schema="bbps")
 @Data
 public class BillPaymentDetails {
 

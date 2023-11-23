@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.bbps.billpayment.data.BillPaymentResponse;
+import com.bbps.billpayment.data.BillPaymentResponseVO;
 import com.bbps.core.entity.BillPaymentDetails;
 import com.bbps.core.repository.BillPaymentDetailsRepo;
 
@@ -19,8 +19,8 @@ public class BillPaymentDetailsService {
 	@Autowired
 	private BillPaymentDetailsRepo repo;
 
-	public void fetchandUpdate(BillPaymentResponse payresp, String status) {
-		BillPaymentDetails billPaymentDetails = repo.findbyRefId(payresp.getRefId());
+	public void fetchandUpdate(BillPaymentResponseVO payresp, String status) {
+		BillPaymentDetails billPaymentDetails = repo.findByRefId(payresp.getRefId());
 		if (billPaymentDetails != null) {
 			billPaymentDetails.setResponseCode(payresp.getResponseCode());
 			billPaymentDetails.setResponseMessage(payresp.getResponseMessage());
